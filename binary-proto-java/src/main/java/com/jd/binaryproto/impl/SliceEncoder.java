@@ -1,9 +1,10 @@
 package com.jd.binaryproto.impl;
 
 import com.jd.binaryproto.BinarySliceSpec;
-import com.jd.blockchain.utils.io.BytesInputStream;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlices;
+
+import utils.io.BytesInputStream;
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlices;
 
 /**
  * 分段编码器；

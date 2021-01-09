@@ -4,10 +4,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import com.jd.binaryproto.DataContractException;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSerializable;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesUtils;
+
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSerializable;
+import utils.io.BytesSlice;
+import utils.io.BytesUtils;
 
 public class BytesSerializableValueConverter extends AbstractDynamicValueConverter {
 

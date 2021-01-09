@@ -1,8 +1,8 @@
 package com.jd.binaryproto.impl;
 
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesUtils;
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
+import utils.io.BytesUtils;
 
 public class BytesValueConverter extends AbstractDynamicValueConverter {
 

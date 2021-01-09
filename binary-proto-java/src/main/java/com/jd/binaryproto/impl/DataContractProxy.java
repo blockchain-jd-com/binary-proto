@@ -3,8 +3,9 @@ package com.jd.binaryproto.impl;
 import java.util.List;
 
 import com.jd.binaryproto.DataSpecification;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesSlices;
+
+import utils.io.BytesSlice;
+import utils.io.BytesSlices;
 
 /**
  * 数据契约代理对象；<br>

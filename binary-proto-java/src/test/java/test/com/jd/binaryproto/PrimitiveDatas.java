@@ -4,8 +4,9 @@ import com.jd.binaryproto.DataContract;
 import com.jd.binaryproto.DataField;
 import com.jd.binaryproto.NumberEncoding;
 import com.jd.binaryproto.PrimitiveType;
-import com.jd.blockchain.utils.Bytes;
-import com.jd.blockchain.utils.net.NetworkAddress;
+
+import utils.Bytes;
+import utils.net.NetworkAddress;
 
 /**
  * Created by zhangshuang3 on 2018/7/11.

@@ -3,8 +3,9 @@ package test.com.jd.binaryproto;
 import com.jd.binaryproto.DataContract;
 import com.jd.binaryproto.DataField;
 import com.jd.binaryproto.PrimitiveType;
-import com.jd.blockchain.utils.Bytes;
-import com.jd.blockchain.utils.io.BytesUtils;
+
+import utils.Bytes;
+import utils.io.BytesUtils;
 
 /**
  * 验证数据契约的属性方法采用 {@link Override} 标注从父类型继承而来的情况下，能够正确处理；

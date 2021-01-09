@@ -1,7 +1,7 @@
 package com.jd.binaryproto;
 
-import com.jd.blockchain.utils.io.BytesInputStream;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
+import utils.io.BytesInputStream;
+import utils.io.BytesOutputBuffer;
 
 /**
  * 二进制编码器；

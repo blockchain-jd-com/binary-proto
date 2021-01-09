@@ -4,11 +4,12 @@ import java.lang.reflect.Method;
 
 import com.jd.binaryproto.BinarySliceSpec;
 import com.jd.binaryproto.FieldSpec;
-import com.jd.blockchain.utils.io.BytesInputStream;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlices;
-import com.jd.blockchain.utils.io.NumberMask;
-import com.jd.blockchain.utils.io.SingleBytesSliceArray;
+
+import utils.io.BytesInputStream;
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlices;
+import utils.io.NumberMask;
+import utils.io.SingleBytesSliceArray;
 
 public class DynamicFieldEncoder extends AbstractFieldEncoder {
 

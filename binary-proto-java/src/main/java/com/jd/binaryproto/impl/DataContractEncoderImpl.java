@@ -9,9 +9,10 @@ import com.jd.binaryproto.DataContractEncoder;
 import com.jd.binaryproto.DataSpecification;
 import com.jd.binaryproto.DataTypeMapping;
 import com.jd.binaryproto.FieldAttributeMapping;
-import com.jd.blockchain.utils.io.BytesInputStream;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
+
+import utils.io.BytesInputStream;
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
 
 public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMapping {
 

@@ -7,10 +7,11 @@ import java.util.List;
 
 import com.jd.binaryproto.DataContractException;
 import com.jd.binaryproto.DataSpecification;
-import com.jd.blockchain.utils.ArrayUtils;
-import com.jd.blockchain.utils.io.BytesInputStream;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesSlices;
+
+import utils.ArrayUtils;
+import utils.io.BytesInputStream;
+import utils.io.BytesSlice;
+import utils.io.BytesSlices;
 
 class DynamicDataContract implements InvocationHandler, DataContractProxy {
 

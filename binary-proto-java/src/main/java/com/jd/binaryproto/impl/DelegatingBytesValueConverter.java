@@ -2,10 +2,11 @@ package com.jd.binaryproto.impl;
 
 import com.jd.binaryproto.BytesConverter;
 import com.jd.binaryproto.DataContractException;
-import com.jd.blockchain.utils.ByteSequence;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesUtils;
+
+import utils.ByteSequence;
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
+import utils.io.BytesUtils;
 
 public class DelegatingBytesValueConverter<T> extends AbstractDynamicValueConverter {
 	

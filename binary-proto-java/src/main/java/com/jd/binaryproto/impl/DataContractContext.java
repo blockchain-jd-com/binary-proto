@@ -33,11 +33,12 @@ import com.jd.binaryproto.FieldSpec;
 import com.jd.binaryproto.NumberEncoding;
 import com.jd.binaryproto.PrimitiveType;
 import com.jd.binaryproto.impl.EnumSpecificationInfo.EnumConstant;
-import com.jd.blockchain.utils.io.BytesSerializable;
-import com.jd.blockchain.utils.io.BytesUtils;
-import com.jd.blockchain.utils.io.NumberMask;
-import com.jd.blockchain.utils.provider.Provider;
-import com.jd.blockchain.utils.provider.ProviderManager;
+
+import utils.io.BytesSerializable;
+import utils.io.BytesUtils;
+import utils.io.NumberMask;
+import utils.provider.Provider;
+import utils.provider.ProviderManager;
 
 public class DataContractContext {
 

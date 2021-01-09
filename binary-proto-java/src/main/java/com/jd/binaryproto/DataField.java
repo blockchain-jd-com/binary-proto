@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.jd.blockchain.utils.io.NumberMask;
+import utils.io.NumberMask;
 
 /**
  * 标记一个接口的字段作为数据契约的字段；

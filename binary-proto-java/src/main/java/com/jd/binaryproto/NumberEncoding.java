@@ -1,6 +1,6 @@
 package com.jd.binaryproto;
 
-import com.jd.blockchain.utils.io.NumberMask;
+import utils.io.NumberMask;
 
 /**
  * 数值编码格式；

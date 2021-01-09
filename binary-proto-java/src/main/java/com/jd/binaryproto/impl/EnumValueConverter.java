@@ -2,7 +2,8 @@ package com.jd.binaryproto.impl;
 
 import com.jd.binaryproto.DataContractException;
 import com.jd.binaryproto.PrimitiveType;
-import com.jd.blockchain.utils.io.BytesSlice;
+
+import utils.io.BytesSlice;
 
 public class EnumValueConverter implements FixedValueConverter {
 

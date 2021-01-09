@@ -10,9 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.jd.binaryproto.impl.DataContractContext;
 import com.jd.binaryproto.impl.DataContractProxy;
 import com.jd.binaryproto.impl.HeaderEncoder;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
-import com.jd.blockchain.utils.io.BytesUtils;
+
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
+import utils.io.BytesUtils;
 
 public class BinaryProtocol {
 

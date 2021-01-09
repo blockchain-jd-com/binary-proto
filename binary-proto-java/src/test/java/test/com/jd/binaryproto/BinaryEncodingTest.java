@@ -19,14 +19,14 @@ import com.jd.binaryproto.DataContractRegistry;
 import com.jd.binaryproto.DataSpecification;
 import com.jd.binaryproto.FieldSpec;
 import com.jd.binaryproto.impl.DataContractProxy;
-import com.jd.blockchain.utils.Bytes;
-import com.jd.blockchain.utils.io.BytesEncoding;
-import com.jd.blockchain.utils.io.BytesUtils;
-import com.jd.blockchain.utils.io.NumberMask;
-import com.jd.blockchain.utils.net.NetworkAddress;
 
 import test.com.jd.binaryproto.FieldOverrideDataContractTest.TestData;
 import test.com.jd.binaryproto.FieldOverrideDataContractTest.TestDataContract;
+import utils.Bytes;
+import utils.io.BytesEncoding;
+import utils.io.BytesUtils;
+import utils.io.NumberMask;
+import utils.net.NetworkAddress;
 
 public class BinaryEncodingTest {
 

@@ -1,6 +1,6 @@
 package com.jd.binaryproto.impl;
 
-import com.jd.blockchain.utils.io.BytesSlice;
+import utils.io.BytesSlice;
 
 public class BoolConverter implements FixedValueConverter{
 

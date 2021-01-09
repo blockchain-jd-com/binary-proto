@@ -1,8 +1,9 @@
 package com.jd.binaryproto.impl;
 
 import com.jd.binaryproto.DataContractEncoder;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
+
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
 
 public class DataContractValueConverter extends AbstractDynamicValueConverter {
 	

@@ -6,8 +6,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.jd.binaryproto.DataContract;
 import com.jd.binaryproto.DataContractEncoder;
 import com.jd.binaryproto.DataContractException;
-import com.jd.blockchain.utils.io.BytesOutputBuffer;
-import com.jd.blockchain.utils.io.BytesSlice;
+
+import utils.io.BytesOutputBuffer;
+import utils.io.BytesSlice;
 
 public class DataContractGenericRefConverter extends AbstractDynamicValueConverter {
 

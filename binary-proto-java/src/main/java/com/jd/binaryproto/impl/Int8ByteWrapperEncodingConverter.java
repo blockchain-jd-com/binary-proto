@@ -1,6 +1,6 @@
 package com.jd.binaryproto.impl;
 
-import com.jd.blockchain.utils.io.NumberMask;
+import utils.io.NumberMask;
 
 public class Int8ByteWrapperEncodingConverter extends NumberEncodingConverter {
 
