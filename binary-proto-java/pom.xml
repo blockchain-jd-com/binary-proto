@@ -12,7 +12,7 @@
 	<version>1.4.1.RELEASE</version>
 
 	<properties>
-		<utils.version>1.4.0.RELEASE</utils.version>
+		<utils.version>1.4.1.RELEASE</utils.version>
 	</properties>
 
 	<dependencies>
