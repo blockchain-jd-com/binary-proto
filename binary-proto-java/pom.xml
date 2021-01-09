@@ -4,16 +4,22 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.jd.blockchain</groupId>
-		<artifactId>jdchain-framework</artifactId>
-		<version>1.4.0.RELEASE</version>
+		<artifactId>jdchain-parent</artifactId>
+		<version>1.1.4.RELEASE</version>
+		<relativePath>../../../project/parent</relativePath>
 	</parent>
 	<artifactId>binary-proto</artifactId>
+	<version>1.4.0.RELEASE</version>
+
+	<properties>
+		<utils.version>1.4.0.RELEASE</utils.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.jd.blockchain</groupId>
 			<artifactId>utils-common</artifactId>
-			<version>${project.version}</version>
+			<version>${utils.version}</version>
 		</dependency>
 		<!-- <dependency>
 			<groupId>com.jd.blockchain</groupId>
