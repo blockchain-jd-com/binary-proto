@@ -9,10 +9,10 @@
 		<relativePath>../../../project/parent</relativePath>
 	</parent>
 	<artifactId>binary-proto</artifactId>
-	<version>1.4.1.RELEASE</version>
+	<version>1.5.0.RELEASE</version>
 
 	<properties>
-		<utils.version>1.4.1.RELEASE</utils.version>
+		<utils.version>2.0.0.RELEASE</utils.version>
 	</properties>
 
 	<dependencies>
