@@ -17,7 +17,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.jd.blockchain</groupId>
+			<groupId>com.jd.utils</groupId>
 			<artifactId>utils-common</artifactId>
 			<version>${utils.version}</version>
 		</dependency>
