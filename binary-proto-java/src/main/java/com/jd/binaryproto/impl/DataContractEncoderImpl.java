@@ -133,7 +133,8 @@ public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMap
 	@Override
 	public <T> T decode(BytesInputStream bytesStream) {
 		BytesSlice headerSlice = bytesStream.getSlice(HeaderEncoder.HEAD_BYTES);
-		if (!headEncoder.verifyHeaders(headerSlice)) {
+		
+		if (!headEncoder.verifyContractCode(headerSlice)) {
 			throw new IllegalArgumentException(String.format(
 					"The code and version resolved from bytes stream is not match this data contract encoder! --[expected=%s, %s][actual=%s, %s].",
 					headEncoder.getCode(), headEncoder.getVersion(), HeaderEncoder.resolveCode(headerSlice),

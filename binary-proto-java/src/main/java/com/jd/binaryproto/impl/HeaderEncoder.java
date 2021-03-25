@@ -54,18 +54,18 @@ public class HeaderEncoder implements SliceEncoder {
 	}
 
 	/**
-	 * 校验指定的数据契约字节列表的头部是否一致；
+	 * 校验指定的数据契约字节列表的头部的编码是否一致；
 	 * 
 	 * @param dataContractBytes
 	 * @return
 	 */
-	boolean verifyHeaders(BytesSlice dataContractBytes) {
+	boolean verifyContractCode(BytesSlice dataContractBytes) {
 		int code = resolveCode(dataContractBytes);
-		if (code != this.code) {
-			return false;
-		}
-		long version = resolveVersion(dataContractBytes);
-		return version == this.version;
+		return code == this.code;
+		
+		//忽略版本比较，实现多版本兼容解析；
+//		long version = resolveVersion(dataContractBytes);
+//		return version == this.version;
 	}
 	
 	public static int resolveCode(BytesSlice dataContractBytes) {

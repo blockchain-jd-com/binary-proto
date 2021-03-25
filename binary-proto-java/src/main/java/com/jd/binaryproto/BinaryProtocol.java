@@ -1,6 +1,5 @@
 package com.jd.binaryproto;
 
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -11,7 +10,6 @@ import com.jd.binaryproto.impl.DataContractContext;
 import com.jd.binaryproto.impl.DataContractProxy;
 import com.jd.binaryproto.impl.HeaderEncoder;
 
-import utils.io.BytesOutputBuffer;
 import utils.io.BytesSlice;
 import utils.io.BytesUtils;
 
@@ -67,9 +65,7 @@ public class BinaryProtocol {
 		if (encoder == null) {
 			throw new IllegalArgumentException("Contract Type not exist!--" + contractType.getName());
 		}
-		BytesOutputBuffer buffer = new BytesOutputBuffer();
-		encoder.encode(data, buffer);
-		buffer.writeTo(out);
+		encoder.encode(data, out);
 	}
 
 	public static byte[] encode(Object data) {
@@ -81,7 +77,8 @@ public class BinaryProtocol {
 				if (contractType == null) {
 					contractType = findDataContractType(dataType);
 					if (contractType == null) {
-						throw new DataContractException("No data contract is declared in type[" + dataType.getName() + "]!");
+						throw new DataContractException(
+								"No data contract is declared in type[" + dataType.getName() + "]!");
 					}
 					dynamicContractTypeMapping.put(dataType, contractType);
 				}
@@ -109,9 +106,11 @@ public class BinaryProtocol {
 	}
 
 	public static byte[] encode(Object data, Class<?> contractType) {
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		encode(data, contractType, out);
-		return out.toByteArray();
+		DataContractEncoder encoder = DataContractRegistry.register(contractType);
+		if (encoder == null) {
+			throw new IllegalArgumentException("Contract Type not exist!--" + contractType.getName());
+		}
+		return encoder.encode(data);
 	}
 
 	public static <T> T decode(InputStream in) {
@@ -129,7 +128,7 @@ public class BinaryProtocol {
 			throw new DataContractException(
 					String.format("No data contract was registered with code[%s] and version[%s]!", code, version));
 		}
-		return encoder.decode(bytes.getInputStream());
+		return encoder.decode(dataSegment);
 	}
 
 	public static <T> T decode(byte[] dataSegment, Class<T> contractType) {
@@ -145,8 +144,7 @@ public class BinaryProtocol {
 				throw new DataContractException("Contract type is not registered! --" + contractType.toString());
 			}
 		}
-		BytesSlice bytes = new BytesSlice(dataSegment, 0, dataSegment.length);
-		return encoder.decode(bytes.getInputStream());
+		return encoder.decode(dataSegment);
 	}
 
 	public static boolean isProxy(Object obj) {
