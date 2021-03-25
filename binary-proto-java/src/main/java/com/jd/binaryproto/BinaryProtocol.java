@@ -63,7 +63,7 @@ public class BinaryProtocol {
 	}
 
 	public static void encode(Object data, Class<?> contractType, OutputStream out) {
-		DataContractEncoder encoder = DataContractContext.resolve(contractType);
+		DataContractEncoder encoder = DataContractRegistry.register(contractType);
 		if (encoder == null) {
 			throw new IllegalArgumentException("Contract Type not exist!--" + contractType.getName());
 		}
@@ -124,7 +124,7 @@ public class BinaryProtocol {
 		int code = HeaderEncoder.resolveCode(bytes);
 		long version = HeaderEncoder.resolveVersion(bytes);
 
-		DataContractEncoder encoder = DataContractContext.ENCODER_LOOKUP.lookup(code, version);
+		DataContractEncoder encoder = DataContractRegistry.getEncoder(code, version);
 		if (encoder == null) {
 			throw new DataContractException(
 					String.format("No data contract was registered with code[%s] and version[%s]!", code, version));
@@ -137,10 +137,10 @@ public class BinaryProtocol {
 	}
 
 	public static <T> T decode(byte[] dataSegment, Class<T> contractType, boolean autoRegister) {
-		DataContractEncoder encoder = DataContractContext.ENCODER_LOOKUP.lookup(contractType);
+		DataContractEncoder encoder = DataContractRegistry.getEncoder(contractType);
 		if (encoder == null) {
 			if (autoRegister) {
-				encoder = DataContractContext.resolve(contractType);
+				encoder = DataContractRegistry.register(contractType);
 			} else {
 				throw new DataContractException("Contract type is not registered! --" + contractType.toString());
 			}
