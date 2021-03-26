@@ -136,15 +136,29 @@ public class BinaryProtocol {
 	}
 
 	public static <T> T decode(byte[] dataSegment, Class<T> contractType, boolean autoRegister) {
-		DataContractEncoder encoder = DataContractRegistry.getEncoder(contractType);
-		if (encoder == null) {
+		BytesSlice bytes = new BytesSlice(dataSegment, 0, dataSegment.length);
+		int code = HeaderEncoder.resolveCode(bytes);
+		long version = HeaderEncoder.resolveVersion(bytes);
+
+		DataContractEncoder codec = DataContractRegistry.getEncoder(code, version);
+		if (codec == null) {
+			codec = DataContractRegistry.getEncoder(contractType);
+		} else {
+			if (!contractType.isAssignableFrom(codec.getContractType())) {
+				throw new DataContractException("The specified contract type[" + contractType.getName()
+						+ "] is incompatible the origin contract type[" + codec.getContractType().getName()
+						+ "] of the data bytes!");
+			}
+		}
+
+		if (codec == null) {
 			if (autoRegister) {
-				encoder = DataContractRegistry.register(contractType);
+				codec = DataContractRegistry.register(contractType);
 			} else {
 				throw new DataContractException("Contract type is not registered! --" + contractType.toString());
 			}
 		}
-		return encoder.decode(dataSegment);
+		return codec.decode(dataSegment);
 	}
 
 	public static boolean isProxy(Object obj) {
