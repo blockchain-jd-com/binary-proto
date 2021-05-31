@@ -22,6 +22,7 @@ import com.jd.binaryproto.DataContractEncoder;
 import com.jd.binaryproto.DataContractException;
 import com.jd.binaryproto.DataField;
 import com.jd.binaryproto.DataSpecification;
+import com.jd.binaryproto.DataTypeMapping;
 import com.jd.binaryproto.EnumContract;
 import com.jd.binaryproto.EnumField;
 import com.jd.binaryproto.EnumSpecification;
@@ -34,15 +35,15 @@ import utils.io.BytesSerializable;
 import utils.io.BytesUtils;
 import utils.io.NumberMask;
 
-public class DataContractContext implements DataContractEncoderLookup{
-	
+public class DataContractContext implements DataContractEncoderLookup {
+
 	private static final Object MUTEX = new Object();
 
 	private static final BinarySliceSpec HEAD_SLICE = BinarySliceSpec.newFixedSlice(HeaderEncoder.HEAD_BYTES, "HEAD",
 			"The code and version of data contract.");
 
 	private static final byte SINGLE_TYPE = 0;
-	
+
 	private static final byte REPEATABLE_TYPE = 1;
 
 	/**
@@ -64,22 +65,20 @@ public class DataContractContext implements DataContractEncoderLookup{
 	 * 动态的数据契约类型的字段；
 	 */
 	private static final byte DYNAMIC_CONTRACT_FIELD = 3;
-	
-	
-	//---------------------
-	
+
+	// ---------------------
+
 	private Map<PrimitiveType, Map<Class<?>, ValueConverter>> primitiveTypeConverters = new HashMap<>();
 	private Map<PrimitiveType, Map<Class<?>, Map<NumberMask, ValueConverter>>> numberEncodingConverters = new HashMap<>();
-	
+
 	private Map<Integer, ContractTypeVersionContext> codeMap = new ConcurrentHashMap<>();
 	private Map<Class<?>, DataContractEncoder> typeMap = new ConcurrentHashMap<>();
 	private Map<Class<?>, EnumSpecification> enumContractSpecMap = new ConcurrentHashMap<>();
 
-	
 	public DataContractContext() {
 		initPrimitiveConverters();
 	}
-	
+
 	private void initPrimitiveConverters() {
 		addConverterMapping(PrimitiveType.BOOLEAN, boolean.class, new BoolConverter());
 		addConverterMapping(PrimitiveType.BOOLEAN, Boolean.class, new BoolWrapperConverter());
@@ -106,7 +105,6 @@ public class DataContractContext implements DataContractEncoderLookup{
 		addConverterMapping(PrimitiveType.TEXT, String.class, new StringValueConverter());
 		addConverterMapping(PrimitiveType.BYTES, byte[].class, new BytesValueConverter());
 	}
-
 
 	private void initNumberEncodingConverterMapping(PrimitiveType protocalType, Class<?> javaType,
 			Class<? extends NumberEncodingConverter> numberEncodingConverterType) {
@@ -212,7 +210,7 @@ public class DataContractContext implements DataContractEncoderLookup{
 		DataContract annoContract = contractType.getAnnotation(DataContract.class);
 		return annoContract != null;
 	}
-	
+
 	@Override
 	public DataContractEncoder lookup(int code, long version) {
 		ContractTypeVersionContext ctx = codeMap.get(code);
@@ -226,6 +224,10 @@ public class DataContractContext implements DataContractEncoderLookup{
 	@Override
 	public DataContractEncoder lookup(Class<?> contractType) {
 		return typeMap.get(contractType);
+	}
+
+	public DataTypeMapping lookupDataType(Class<?> contractType) {
+		return (DataContractEncoderImpl) typeMap.get(contractType);
 	}
 
 	/**
@@ -486,7 +488,9 @@ public class DataContractContext implements DataContractEncoderLookup{
 			ValueConverter valueConverter) {
 		if (sliceSpec.isRepeatable()) {
 			if (sliceSpec.isDynamic()) {
-				return new DynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader,
+//				return new DynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader,
+//						(DynamicValueConverter) valueConverter);
+				return createDynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader,
 						(DynamicValueConverter) valueConverter);
 			} else {
 				return new FixedArrayFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
@@ -498,6 +502,36 @@ public class DataContractContext implements DataContractEncoderLookup{
 				return new FixedFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
 			}
 		}
+	}
+
+	private static DynamicArrayFieldEncoder createDynamicArrayFieldEncoder(BinarySliceSpec sliceSpec,
+			FieldSpec fieldSpec, Method reader, DynamicValueConverter valueConverter) {
+		// 判断返回值数组的类型，创建相应的数组类型的转换器；
+		Class<?> retnType = reader.getReturnType();
+		if (!retnType.isArray()) {
+			throw new IllegalArgumentException("The return type of Filed[" + reader.getName() + "] is not array type!");
+		}
+		Class<?> componentType = retnType.getComponentType();
+		if (!componentType.isPrimitive()) {
+			return new DynamicObjectArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (long.class == componentType) {
+			return new DynamicLongArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (int.class == componentType) {
+			return new DynamicIntArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (short.class == componentType) {
+			return new DynamicShortArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (char.class == componentType) {
+			return new DynamicCharArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (byte.class == componentType) {
+			return new DynamicByteArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		
+		return new DynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
 	}
 
 	private BinarySliceSpec buildSlice(FieldSpecInfo fieldSpec) {

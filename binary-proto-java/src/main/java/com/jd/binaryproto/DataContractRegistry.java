@@ -70,6 +70,10 @@ public class DataContractRegistry {
 	public static DataContractEncoder getEncoder(Class<?> contractType) {
 		return CONTEXT.lookup(contractType);
 	}
+	
+	public static DataTypeMapping getDataType(Class<?> contractType) {
+		return CONTEXT.lookupDataType(contractType);
+	}
 
 	public static DataContractEncoder getEncoder(int contractCode, long version) {
 		return CONTEXT.lookup(contractCode, version);

@@ -25,8 +25,7 @@ public class BinaryProtocol {
 	 * @return
 	 */
 	public static DataTypeMapping getDataType(Class<?> contractType) {
-		// TODO: Not implemented!;
-		throw new IllegalStateException("Not implemented!");
+		return DataContractRegistry.getDataType(contractType);
 	}
 
 	/**

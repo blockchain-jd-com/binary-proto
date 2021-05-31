@@ -15,7 +15,7 @@ import utils.io.NumberMask;
 
 public class DynamicArrayFieldEncoder extends AbstractFieldEncoder {
 
-	private DynamicValueConverter valueConverter;
+	protected DynamicValueConverter valueConverter;
 
 	private NumberMask numberMask;
 
@@ -44,9 +44,9 @@ public class DynamicArrayFieldEncoder extends AbstractFieldEncoder {
 	 * @param buffer
 	 * @return
 	 */
-	private int encodeArrayDynamic(Object values, BytesOutputBuffer buffer) {
+	protected int encodeArrayDynamic(Object values, BytesOutputBuffer buffer) {
 		int size = 0;
-
+		
 		int count = values == null ? 0 : Array.getLength(values);
 		byte[] countBytes = NumberMask.NORMAL.generateMask(count);
 		buffer.write(countBytes);
