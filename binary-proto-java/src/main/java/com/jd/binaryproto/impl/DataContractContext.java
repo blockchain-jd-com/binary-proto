@@ -9,21 +9,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.jd.binaryproto.BinaryProtocol;
 import com.jd.binaryproto.BinarySliceSpec;
 import com.jd.binaryproto.BytesConverter;
 import com.jd.binaryproto.DataContract;
-import com.jd.binaryproto.DataContractAutoRegistrar;
 import com.jd.binaryproto.DataContractEncoder;
 import com.jd.binaryproto.DataContractException;
-import com.jd.binaryproto.DataContractRegistry;
 import com.jd.binaryproto.DataField;
 import com.jd.binaryproto.DataSpecification;
 import com.jd.binaryproto.EnumContract;
@@ -37,21 +33,16 @@ import com.jd.binaryproto.impl.EnumSpecificationInfo.EnumConstant;
 import utils.io.BytesSerializable;
 import utils.io.BytesUtils;
 import utils.io.NumberMask;
-import utils.provider.Provider;
-import utils.provider.ProviderManager;
 
-public class DataContractContext {
-
-	private static ProviderManager pm = new ProviderManager();
-
-	public static DataContractEncoderLookup ENCODER_LOOKUP;
-
+public class DataContractContext implements DataContractEncoderLookup{
+	
 	private static final Object MUTEX = new Object();
 
 	private static final BinarySliceSpec HEAD_SLICE = BinarySliceSpec.newFixedSlice(HeaderEncoder.HEAD_BYTES, "HEAD",
 			"The code and version of data contract.");
 
 	private static final byte SINGLE_TYPE = 0;
+	
 	private static final byte REPEATABLE_TYPE = 1;
 
 	/**
@@ -73,17 +64,23 @@ public class DataContractContext {
 	 * 动态的数据契约类型的字段；
 	 */
 	private static final byte DYNAMIC_CONTRACT_FIELD = 3;
+	
+	
+	//---------------------
+	
+	private Map<PrimitiveType, Map<Class<?>, ValueConverter>> primitiveTypeConverters = new HashMap<>();
+	private Map<PrimitiveType, Map<Class<?>, Map<NumberMask, ValueConverter>>> numberEncodingConverters = new HashMap<>();
+	
+	private Map<Integer, ContractTypeVersionContext> codeMap = new ConcurrentHashMap<>();
+	private Map<Class<?>, DataContractEncoder> typeMap = new ConcurrentHashMap<>();
+	private Map<Class<?>, EnumSpecification> enumContractSpecMap = new ConcurrentHashMap<>();
 
-	private static Map<Integer, ContractTypeVersionContext> codeMap = new ConcurrentHashMap<>();
-	private static Map<Class<?>, DataContractEncoder> typeMap = new ConcurrentHashMap<>();
-
-	private static Map<Class<?>, EnumSpecification> enumContractSpecMap = new ConcurrentHashMap<>();
-
-	private static Map<PrimitiveType, Map<Class<?>, ValueConverter>> primitiveTypeConverters = new HashMap<>();
-
-	private static Map<PrimitiveType, Map<Class<?>, Map<NumberMask, ValueConverter>>> numberEncodingConverters = new HashMap<>();
-
-	static {
+	
+	public DataContractContext() {
+		initPrimitiveConverters();
+	}
+	
+	private void initPrimitiveConverters() {
 		addConverterMapping(PrimitiveType.BOOLEAN, boolean.class, new BoolConverter());
 		addConverterMapping(PrimitiveType.BOOLEAN, Boolean.class, new BoolWrapperConverter());
 
@@ -108,54 +105,10 @@ public class DataContractContext {
 
 		addConverterMapping(PrimitiveType.TEXT, String.class, new StringValueConverter());
 		addConverterMapping(PrimitiveType.BYTES, byte[].class, new BytesValueConverter());
-
-		ENCODER_LOOKUP = new DataContractEncoderLookup() {
-			@Override
-			public DataContractEncoder lookup(int code, long version) {
-				ContractTypeVersionContext ctx = codeMap.get(code);
-				if (ctx == null) {
-					return null;
-				}
-				// TODO: 未实现多个版本的处理；
-				return ctx.contractEncoder;
-			}
-
-			@Override
-			public DataContractEncoder lookup(Class<?> contractType) {
-				return typeMap.get(contractType);
-			}
-		};
-
-		// 加载自动注册提供者，注册类型；
-		autoRegister();
 	}
 
-	public static void autoRegister() {
-		// 从当前类型的类加载器加载服务提供者；
-		pm.installAllProviders(DataContractAutoRegistrar.class, BinaryProtocol.class.getClassLoader());
-		// 从线程上下文类加载器加载服务提供者；（多次加载避免由于类加载器的原因产生遗漏，ProviderManager 内部会过滤重复加载）；
-		pm.installAllProviders(DataContractAutoRegistrar.class, Thread.currentThread().getContextClassLoader());
 
-		Iterable<Provider<DataContractAutoRegistrar>> providers = pm.getAllProviders(DataContractAutoRegistrar.class);
-		List<DataContractAutoRegistrar> autoRegistrars = new ArrayList<DataContractAutoRegistrar>();
-		for (Provider<DataContractAutoRegistrar> provider : providers) {
-			autoRegistrars.add(provider.getService());
-		}
-
-		// 排序；
-		autoRegistrars.sort(new Comparator<DataContractAutoRegistrar>() {
-			@Override
-			public int compare(DataContractAutoRegistrar o1, DataContractAutoRegistrar o2) {
-				return o1.order() - o2.order();
-			}
-		});
-
-		for (DataContractAutoRegistrar registrar : autoRegistrars) {
-			registrar.initContext(DataContractRegistry.getInstance());
-		}
-	}
-
-	private static void initNumberEncodingConverterMapping(PrimitiveType protocalType, Class<?> javaType,
+	private void initNumberEncodingConverterMapping(PrimitiveType protocalType, Class<?> javaType,
 			Class<? extends NumberEncodingConverter> numberEncodingConverterType) {
 		Map<Class<?>, Map<NumberMask, ValueConverter>> converterMap = numberEncodingConverters.get(protocalType);
 		if (converterMap == null) {
@@ -178,13 +131,13 @@ public class DataContractContext {
 		}
 	}
 
-	private synchronized static void addConverterMapping(PrimitiveType protocalType, Class<?> javaType,
+	private synchronized void addConverterMapping(PrimitiveType protocalType, Class<?> javaType,
 			ValueConverter converter, Class<? extends NumberEncodingConverter> numberEncodingConverterType) {
 		addConverterMapping(protocalType, javaType, converter);
 		initNumberEncodingConverterMapping(protocalType, javaType, numberEncodingConverterType);
 	}
 
-	private synchronized static void addConverterMapping(PrimitiveType protocalType, Class<?> javaType,
+	private synchronized void addConverterMapping(PrimitiveType protocalType, Class<?> javaType,
 			ValueConverter converter) {
 		Map<Class<?>, ValueConverter> converterMap = primitiveTypeConverters.get(protocalType);
 		if (converterMap == null) {
@@ -194,7 +147,7 @@ public class DataContractContext {
 		converterMap.put(javaType, converter);
 	}
 
-	private static ValueConverter getPrimitiveTypeConverter(PrimitiveType protocalType, Class<?> javaType,
+	private ValueConverter getPrimitiveTypeConverter(PrimitiveType protocalType, Class<?> javaType,
 			NumberEncoding numberEncoding) {
 		if (numberEncoding != null && numberEncoding != NumberEncoding.NONE) {
 			Map<Class<?>, Map<NumberMask, ValueConverter>> typeConverters = numberEncodingConverters.get(protocalType);
@@ -224,12 +177,12 @@ public class DataContractContext {
 				protocalType.toString(), javaType.toString()));
 	}
 
-	public synchronized static <T> void registerBytesConverter(Class<T> javaType, BytesConverter<T> converter) {
+	public synchronized <T> void registerBytesConverter(Class<T> javaType, BytesConverter<T> converter) {
 		DelegatingBytesValueConverter<T> bytesValueConverter = new DelegatingBytesValueConverter<>(javaType, converter);
 		addConverterMapping(PrimitiveType.BYTES, javaType, bytesValueConverter);
 	}
 
-	public static DataContractEncoder resolve(Class<?> contractType) {
+	public DataContractEncoder register(Class<?> contractType) {
 		DataContractEncoder encoder = typeMap.get(contractType);
 		if (encoder != null) {
 			return encoder;
@@ -259,6 +212,21 @@ public class DataContractContext {
 		DataContract annoContract = contractType.getAnnotation(DataContract.class);
 		return annoContract != null;
 	}
+	
+	@Override
+	public DataContractEncoder lookup(int code, long version) {
+		ContractTypeVersionContext ctx = codeMap.get(code);
+		if (ctx == null) {
+			return null;
+		}
+		// TODO: 未实现多个版本的处理；
+		return ctx.contractEncoder;
+	}
+
+	@Override
+	public DataContractEncoder lookup(Class<?> contractType) {
+		return typeMap.get(contractType);
+	}
 
 	/**
 	 * 解析数据契约； <br>
@@ -266,7 +234,7 @@ public class DataContractContext {
 	 * @param contractType
 	 * @return
 	 */
-	private static ContractTypeVersionContext resolveContract(Class<?> contractType) {
+	private ContractTypeVersionContext resolveContract(Class<?> contractType) {
 		// TODO: 未处理可能存在的循环依赖问题，这会导致解析方法陷入死循环；
 		if (!contractType.isInterface()) {
 			throw new IllegalArgumentException(
@@ -304,7 +272,7 @@ public class DataContractContext {
 	 * @param annoContract
 	 * @return
 	 */
-	private static DataContractEncoder resolveEncoder(Class<?> contractType, DataContract annoContract) {
+	private DataContractEncoder resolveEncoder(Class<?> contractType, DataContract annoContract) {
 		DataContractEncoder encoder = typeMap.get(contractType);
 		if (encoder != null) {
 			return encoder;
@@ -365,7 +333,7 @@ public class DataContractContext {
 	 * @param annoContract
 	 * @return
 	 */
-	private static List<FieldDeclaredInfo> resolveContractFields(Class<?> contractType, DataContract annoContract) {
+	private List<FieldDeclaredInfo> resolveContractFields(Class<?> contractType, DataContract annoContract) {
 		// 解析每一个方法，获得标注的合约字段，并按照声明的合约类型进行分组；
 		Map<Class<?>, DeclaredFieldGroup> declaredFielGroups = new HashMap<>();
 		Method[] methods = contractType.getMethods();
@@ -443,7 +411,7 @@ public class DataContractContext {
 	 * @param sliceSpec
 	 * @return
 	 */
-	private static FieldEncoder buildFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
+	private FieldEncoder buildFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
 		FieldSpecInfo fieldSpec = fieldInfo.fieldSpec;
 		if (fieldSpec.getPrimitiveType() != null) {
 			return buildPrimitiveFieldEncoder(fieldInfo, sliceSpec);
@@ -464,11 +432,11 @@ public class DataContractContext {
 	 * @param sliceSpec
 	 * @return
 	 */
-	private static FieldEncoder buildContractFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
+	private FieldEncoder buildContractFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
 		ValueConverter valueConverter;
 		if (fieldInfo.fieldSpec.isGenericContract()) {
 			Class<?> contractType = fieldInfo.fieldSpec.getDataType();
-			valueConverter = new DataContractGenericRefConverter(contractType, ENCODER_LOOKUP);
+			valueConverter = new DataContractGenericRefConverter(contractType, this);
 		} else {
 			Class<?> contractType = fieldInfo.fieldSpec.getDataType();
 			DataContractEncoder encoder = typeMap.get(contractType);
@@ -485,7 +453,7 @@ public class DataContractContext {
 	 * @param sliceSpec
 	 * @return
 	 */
-	private static FieldEncoder buildEnumFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
+	private FieldEncoder buildEnumFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
 		// 枚举类型的值转换器是由枚举值的范围检查加上一个基本类型的值转换器组成；
 		Class<?> enumType = fieldInfo.fieldSpec.getDataType();
 		EnumSpecificationInfo enumSpec = (EnumSpecificationInfo) fieldInfo.fieldSpec.getRefEnum();
@@ -508,7 +476,7 @@ public class DataContractContext {
 	 * @param sliceSpec
 	 * @return
 	 */
-	private static FieldEncoder buildPrimitiveFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
+	private FieldEncoder buildPrimitiveFieldEncoder(FieldDeclaredInfo fieldInfo, BinarySliceSpec sliceSpec) {
 		ValueConverter valueConverter = getPrimitiveTypeConverter(fieldInfo.fieldSpec.getPrimitiveType(),
 				fieldInfo.fieldSpec.getDataType(), fieldInfo.fieldSpec.getNumberEncoding());
 		return createFieldEncoder(sliceSpec, fieldInfo.fieldSpec, fieldInfo.reader, valueConverter);
@@ -532,7 +500,7 @@ public class DataContractContext {
 		}
 	}
 
-	private static BinarySliceSpec buildSlice(FieldSpecInfo fieldSpec) {
+	private BinarySliceSpec buildSlice(FieldSpecInfo fieldSpec) {
 
 		int len = -1;
 		PrimitiveType fixedValueType = null;
@@ -653,7 +621,7 @@ public class DataContractContext {
 		return -1;
 	}
 
-	private static FieldSpecInfo resolveFieldSpec(Method accessor, DataField annoField) {
+	private FieldSpecInfo resolveFieldSpec(Method accessor, DataField annoField) {
 		String name = annoField.name();
 		name = name == null ? null : name.trim();
 		if (name == null || name.length() > 0) {
@@ -735,7 +703,7 @@ public class DataContractContext {
 		return fieldSpec;
 	}
 
-	private static EnumSpecification resolveEnumContract(Class<?> dataType, EnumContract annoEnumContract) {
+	private EnumSpecification resolveEnumContract(Class<?> dataType, EnumContract annoEnumContract) {
 		EnumSpecificationInfo enumSpec = (EnumSpecificationInfo) enumContractSpecMap.get(dataType);
 		if (enumSpec != null) {
 			return enumSpec;

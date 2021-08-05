@@ -1,6 +1,5 @@
 package test.com.jd.binaryproto;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -684,7 +683,7 @@ public class BinaryEncodingTest {
 		} catch (DataContractException e) {
 			ex = e;
 			System.out.println(
-					"expected error of [" + FieldOrderConflictedDatas.class.toString() + "] --" + e.getMessage());
+					"unexpected error of [" + FieldOrderConflictedDatas.class.toString() + "] --" + e.getMessage());
 		}
 		assertNotNull(ex);
 	}
