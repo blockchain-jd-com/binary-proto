@@ -65,7 +65,8 @@ public class FixedArrayFieldEncoder extends AbstractFieldEncoder {
 
 	@Override
 	public Object decodeField(BytesSlices fieldBytes) {
-		Object[] values = (Object[]) Array.newInstance(valueConverter.getValueType(), fieldBytes.getCount());
+		int fieldCount = null != fieldBytes ? fieldBytes.getCount() : 0;
+		Object[] values = (Object[]) Array.newInstance(valueConverter.getValueType(), fieldCount);
 		BytesSlice itemSlice;
 		for (int i = 0; i < values.length; i++) {
 			itemSlice = fieldBytes.getDataSlice(i);

@@ -50,7 +50,7 @@ public class FixedFieldEncoder extends AbstractFieldEncoder {
 	@Override
 	public Object decodeField(BytesSlices fieldBytes) {
 		// 非数组的字段，最多只有一个数据片段；
-		if (fieldBytes.getCount() == 0) {
+		if (null == fieldBytes || fieldBytes.getCount() == 0) {
 			return valueConverter.getDefaultValue();
 		}
 		return valueConverter.decodeValue(fieldBytes.getDataSlice(0));

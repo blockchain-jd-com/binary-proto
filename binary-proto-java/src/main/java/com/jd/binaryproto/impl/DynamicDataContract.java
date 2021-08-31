@@ -71,8 +71,10 @@ class DynamicDataContract implements InvocationHandler, DataContractProxy {
 
 		totalSize = dataSlices[0].getTotalSize();
 		for (int i = 1; i < dataSlices.length; i++) {
-			dataSlices[i] = contractEncoder.getFieldEncoder(i - 1).decode(bytesStream);
-			totalSize += dataSlices[i].getTotalSize();
+			if(totalSize < origSlice.getSize()) {
+				dataSlices[i] = contractEncoder.getFieldEncoder(i - 1).decode(bytesStream);
+				totalSize += dataSlices[i].getTotalSize();
+			}
 		}
 		this.totalSlice = origSlice.getSlice(0, totalSize);
 	}
