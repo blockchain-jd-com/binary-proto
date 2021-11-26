@@ -10,10 +10,10 @@
 	</parent>
 	<groupId>com.jd.binaryproto</groupId>
 	<artifactId>binary-proto</artifactId>
-	<version>1.6.2.RELEASE</version>
+	<version>1.6.3.RELEASE</version>
 
 	<properties>
-		<utils.version>2.1.0.RELEASE</utils.version>
+		<utils.version>2.2.0.RELEASE</utils.version>
 	</properties>
 
 	<dependencies>
