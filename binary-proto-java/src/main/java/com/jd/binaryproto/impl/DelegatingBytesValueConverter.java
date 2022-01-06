@@ -3,7 +3,6 @@ package com.jd.binaryproto.impl;
 import com.jd.binaryproto.BytesConverter;
 import com.jd.binaryproto.DataContractException;
 
-import utils.ByteSequence;
 import utils.io.BytesOutputBuffer;
 import utils.io.BytesSlice;
 import utils.io.BytesUtils;

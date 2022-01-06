@@ -15,7 +15,7 @@ import utils.io.NumberMask;
 
 public class FixedArrayFieldEncoder extends AbstractFieldEncoder {
 
-	private FixedValueConverter valueConverter;
+	protected FixedValueConverter valueConverter;
 
 	public FixedArrayFieldEncoder(BinarySliceSpec sliceSpec, FieldSpec fieldSpec, Method reader,
 			FixedValueConverter valueConverter) {
@@ -40,7 +40,7 @@ public class FixedArrayFieldEncoder extends AbstractFieldEncoder {
 	 * @param buffer
 	 * @return
 	 */
-	private int encodeArray(Object values, BytesOutputBuffer buffer) {
+	protected int encodeArray(Object values, BytesOutputBuffer buffer) {
 		int count = values == null ? 0 : Array.getLength(values);
 
 		int counterSize = NumberMask.NORMAL.getMaskLength(count);

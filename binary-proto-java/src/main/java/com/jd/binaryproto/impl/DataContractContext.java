@@ -199,7 +199,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 指定类型是否声明为 DataContract;
-	 * 
+	 *
 	 * @param contractType
 	 * @return
 	 */
@@ -232,7 +232,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 解析数据契约； <br>
-	 * 
+	 *
 	 * @param contractType
 	 * @return
 	 */
@@ -330,7 +330,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 解析获得数据契约的有序的字段列表；
-	 * 
+	 *
 	 * @param contractType
 	 * @param annoContract
 	 * @return
@@ -408,7 +408,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 创建字段的编码器；
-	 * 
+	 *
 	 * @param fieldInfo
 	 * @param sliceSpec
 	 * @return
@@ -429,7 +429,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 创建数据契约引用字段的编码器；
-	 * 
+	 *
 	 * @param fieldInfo
 	 * @param sliceSpec
 	 * @return
@@ -450,7 +450,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 创建枚举类型的字段编码器；
-	 * 
+	 *
 	 * @param fieldInfo
 	 * @param sliceSpec
 	 * @return
@@ -473,7 +473,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 创建基本类型字段的编码器；
-	 * 
+	 *
 	 * @param fieldInfo
 	 * @param sliceSpec
 	 * @return
@@ -493,7 +493,8 @@ public class DataContractContext implements DataContractEncoderLookup {
 				return createDynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader,
 						(DynamicValueConverter) valueConverter);
 			} else {
-				return new FixedArrayFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
+//				return new FixedArrayFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
+				return createFixedArrayFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
 			}
 		} else {
 			if (sliceSpec.isDynamic()) {
@@ -502,6 +503,36 @@ public class DataContractContext implements DataContractEncoderLookup {
 				return new FixedFieldEncoder(sliceSpec, fieldSpec, reader, (FixedValueConverter) valueConverter);
 			}
 		}
+	}
+
+	private static FixedArrayFieldEncoder createFixedArrayFieldEncoder(BinarySliceSpec sliceSpec,
+			FieldSpec fieldSpec, Method reader, FixedValueConverter valueConverter) {
+		// 判断返回值数组的类型，创建相应的数组类型的转换器；
+		Class<?> retnType = reader.getReturnType();
+		if (!retnType.isArray()) {
+			throw new IllegalArgumentException("The return type of Filed[" + reader.getName() + "] is not array type!");
+		}
+		Class<?> componentType = retnType.getComponentType();
+		if (!componentType.isPrimitive()) {
+			return new FixedObjectArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (long.class == componentType) {
+			return new FixedLongArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (int.class == componentType) {
+			return new FixedIntArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (short.class == componentType) {
+			return new FixedShortArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (char.class == componentType) {
+			return new FixedCharArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+		if (byte.class == componentType) {
+			return new FixedByteArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
+		}
+
+		return new FixedArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
 	}
 
 	private static DynamicArrayFieldEncoder createDynamicArrayFieldEncoder(BinarySliceSpec sliceSpec,
@@ -530,7 +561,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 		if (byte.class == componentType) {
 			return new DynamicByteArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
 		}
-		
+
 		return new DynamicArrayFieldEncoder(sliceSpec, fieldSpec, reader, valueConverter);
 	}
 
@@ -634,9 +665,9 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 计算指定两个接口类型之间的继承距离；<br>
-	 * 
+	 *
 	 * 如果不具有继承关系，则返回 -1；
-	 * 
+	 *
 	 * @param subsTypes 子类型；
 	 * @param superType 父类型；
 	 * @return
@@ -776,9 +807,9 @@ public class DataContractContext implements DataContractEncoderLookup {
 
 	/**
 	 * 解析指定的类型是否匹配；<br>
-	 * 
+	 *
 	 * 要求必须是显式地声明类型，因此不会根据 Java 语言的声明类型做自动转换；
-	 * 
+	 *
 	 * @param primitiveType
 	 * @param dataType
 	 * @return
@@ -845,7 +876,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 		public Class<?> declaredContractType;
 
 		/**
-		 * 
+		 *
 		 */
 		public DataContract declaredContractAnnotation;
 
