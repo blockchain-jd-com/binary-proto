@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 
 public class FixedShortArrayFieldEncoder extends FixedArrayFieldEncoder {
 
-    private static final char[] EMPTY_ARRAY = {};
+    private static final short[] EMPTY_ARRAY = {};
 
     public FixedShortArrayFieldEncoder(BinarySliceSpec sliceSpec, FieldSpec fieldSpec, Method reader,
                                        FixedValueConverter valueConverter) {
@@ -26,7 +26,7 @@ public class FixedShortArrayFieldEncoder extends FixedArrayFieldEncoder {
      * @return
      */
     protected int encodeArray(Object values, BytesOutputBuffer buffer) {
-        char[] valueArray = values == null ? EMPTY_ARRAY : (char[]) values;
+        short[] valueArray = values == null ? EMPTY_ARRAY : (short[]) values;
 
         int count = valueArray.length;
 

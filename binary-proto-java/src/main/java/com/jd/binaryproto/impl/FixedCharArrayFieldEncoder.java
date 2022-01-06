@@ -9,7 +9,7 @@ import utils.io.*;
 
 public class FixedCharArrayFieldEncoder extends FixedArrayFieldEncoder {
 	
-	private static final short[] EMPTY_ARRAY = {};
+	private static final char[] EMPTY_ARRAY = {};
 	
 	public FixedCharArrayFieldEncoder(BinarySliceSpec sliceSpec, FieldSpec fieldSpec, Method reader,
 			FixedValueConverter valueConverter) {
@@ -24,7 +24,7 @@ public class FixedCharArrayFieldEncoder extends FixedArrayFieldEncoder {
 	 * @return
 	 */
 	protected int encodeArray(Object values, BytesOutputBuffer buffer) {
-		short[] valueArray = values == null ? EMPTY_ARRAY : (short[]) values;
+		char[] valueArray = values == null ? EMPTY_ARRAY : (char[]) values;
 		
 		int count = valueArray.length;
 
@@ -44,15 +44,15 @@ public class FixedCharArrayFieldEncoder extends FixedArrayFieldEncoder {
 	}
 
 	@Override
-	public short[] decodeField(BytesSlices fieldBytes) {
-		short[] values = new short[fieldBytes.getCount()];
+	public char[] decodeField(BytesSlices fieldBytes) {
+		char[] values = new char[fieldBytes.getCount()];
 		BytesSlice itemSlice;
 		for (int i = 0; i < values.length; i++) {
 			itemSlice = fieldBytes.getDataSlice(i);
 			if (itemSlice.getSize() == 0) {
-				values[i] = (short) valueConverter.getDefaultValue();
+				values[i] = (char) valueConverter.getDefaultValue();
 			} else {
-				values[i] = (short) valueConverter.decodeValue(itemSlice);
+				values[i] = (char) valueConverter.decodeValue(itemSlice);
 			}
 		}
 		return values;
