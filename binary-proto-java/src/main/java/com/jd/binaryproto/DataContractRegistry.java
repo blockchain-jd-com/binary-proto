@@ -3,6 +3,7 @@ package com.jd.binaryproto;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 import com.jd.binaryproto.impl.DataContractContext;
 
@@ -64,7 +65,11 @@ public class DataContractRegistry {
 	 * @return
 	 */
 	public static DataContractEncoder register(Class<?> contractType) {
-		return CONTEXT.register(contractType);
+		return register(contractType, null);
+	}
+
+	public static DataContractEncoder register(Class<?> contractType, Function<Integer, ?> arrayConstructor) {
+		return CONTEXT.register(contractType, arrayConstructor);
 	}
 	
 	public static DataContractEncoder getEncoder(Class<?> contractType) {

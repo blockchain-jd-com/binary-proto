@@ -2,6 +2,7 @@ package com.jd.binaryproto;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.function.Function;
 
 import utils.io.BytesInputStream;
 import utils.io.BytesOutputBuffer;
@@ -79,4 +80,10 @@ public interface DataContractEncoder {
 	default <T> T decode(byte[] bytes, int offset, int length) {
 		return decode(new BytesInputStream(bytes, offset, length));
 	}
+
+	/**
+	 * 数组创建函数，用于decode
+	 * @return
+	 */
+	Function<Integer, ?> getArrayConstructor();
 }

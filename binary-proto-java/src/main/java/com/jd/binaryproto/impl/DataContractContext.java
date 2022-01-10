@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import com.jd.binaryproto.BinarySliceSpec;
 import com.jd.binaryproto.BytesConverter;
@@ -181,6 +182,10 @@ public class DataContractContext implements DataContractEncoderLookup {
 	}
 
 	public DataContractEncoder register(Class<?> contractType) {
+		return register(contractType, null);
+	}
+
+	public DataContractEncoder register(Class<?> contractType, Function<Integer, ?> arrayConstructor) {
 		DataContractEncoder encoder = typeMap.get(contractType);
 		if (encoder != null) {
 			return encoder;
@@ -190,7 +195,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 			if (encoder != null) {
 				return encoder;
 			}
-			ContractTypeVersionContext ctx = resolveContract(contractType);
+			ContractTypeVersionContext ctx = resolveContract(contractType, arrayConstructor);
 			encoder = ctx.contractEncoder;
 		}
 
@@ -237,6 +242,17 @@ public class DataContractContext implements DataContractEncoderLookup {
 	 * @return
 	 */
 	private ContractTypeVersionContext resolveContract(Class<?> contractType) {
+		return resolveContract(contractType, null);
+	}
+
+	/**
+	 * 解析数据契约； <br>
+	 *
+	 * @param contractType
+	 * @param arrayConstructor
+	 * @return
+	 */
+	private ContractTypeVersionContext resolveContract(Class<?> contractType, Function<Integer, ?> arrayConstructor) {
 		// TODO: 未处理可能存在的循环依赖问题，这会导致解析方法陷入死循环；
 		if (!contractType.isInterface()) {
 			throw new IllegalArgumentException(
@@ -259,7 +275,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 			}
 		}
 
-		DataContractEncoder contractEncoder = resolveEncoder(contractType, annoContract);
+		DataContractEncoder contractEncoder = resolveEncoder(contractType, annoContract, arrayConstructor);
 
 		ctx = new ContractTypeVersionContext(contractType, contractEncoder);
 
@@ -272,9 +288,10 @@ public class DataContractContext implements DataContractEncoderLookup {
 	/**
 	 * @param contractType
 	 * @param annoContract
+	 * @param arrayConstructor
 	 * @return
 	 */
-	private DataContractEncoder resolveEncoder(Class<?> contractType, DataContract annoContract) {
+	private DataContractEncoder resolveEncoder(Class<?> contractType, DataContract annoContract, Function<Integer, ?> arrayConstructor) {
 		DataContractEncoder encoder = typeMap.get(contractType);
 		if (encoder != null) {
 			return encoder;
@@ -323,7 +340,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 				annoContract.name(), annoContract.description(), dataSliceSpecs, fieldSpecs);
 
 		DataContractEncoderImpl contractEncoder = new DataContractEncoderImpl(contractType, spec, headerEncoder,
-				fieldEncoders);
+				fieldEncoders, arrayConstructor);
 
 		return contractEncoder;
 	}
@@ -442,7 +459,7 @@ public class DataContractContext implements DataContractEncoderLookup {
 		} else {
 			Class<?> contractType = fieldInfo.fieldSpec.getDataType();
 			DataContractEncoder encoder = typeMap.get(contractType);
-			valueConverter = new DataContractValueConverter(encoder);
+			valueConverter = new DataContractValueConverter(encoder, encoder.getArrayConstructor());
 		}
 
 		return createFieldEncoder(sliceSpec, fieldInfo.fieldSpec, fieldInfo.reader, valueConverter);

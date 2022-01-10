@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.jd.binaryproto.DataContractEncoder;
 import com.jd.binaryproto.DataSpecification;
@@ -29,6 +30,8 @@ public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMap
 	// 字段的 Get 方法与编码器的映射表；
 	private Map<Method, Integer> fieldIndexMap;
 
+	private Function<Integer, ?> arrayConstructor;
+
 	/**
 	 * @param contractType
 	 * @param specification
@@ -37,6 +40,18 @@ public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMap
 	 */
 	public DataContractEncoderImpl(Class<?> contractType, DataSpecification specification, HeaderEncoder headEncoder,
 			FieldEncoder[] fieldEncoders) {
+		this(contractType, specification, headEncoder, fieldEncoders, null);
+	}
+
+	/**
+	 * @param contractType
+	 * @param specification
+	 * @param headEncoder   头部编码器；
+	 * @param fieldEncoders 按顺序排列的字段编码器列表；
+	 * @param arrayConstructor 数组构造器；
+	 */
+	public DataContractEncoderImpl(Class<?> contractType, DataSpecification specification, HeaderEncoder headEncoder,
+								   FieldEncoder[] fieldEncoders, Function<Integer, ?> arrayConstructor) {
 		this.contractType = contractType;
 		this.contractProxyTypes = new Class<?>[] { contractType, DataContractProxy.class };
 		this.specification = specification;
@@ -48,6 +63,7 @@ public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMap
 			fieldIndexMap.put(fieldEncoder.getReader(), i);
 			i++;
 		}
+		this.arrayConstructor = arrayConstructor;
 	}
 
 	HeaderEncoder getHeaderEncoder() {
@@ -145,6 +161,11 @@ public class DataContractEncoderImpl implements DataContractEncoder, DataTypeMap
 			return null;
 		}
 		return (T) DynamicDataContract.createContract(bytesStream, this);
+	}
+
+	@Override
+	public Function<Integer, ?> getArrayConstructor() {
+		return arrayConstructor;
 	}
 
 	@Override
