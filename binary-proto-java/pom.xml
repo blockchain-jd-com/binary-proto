@@ -5,15 +5,15 @@
 	<parent>
 		<groupId>com.jd.blockchain</groupId>
 		<artifactId>jdchain-parent</artifactId>
-		<version>1.1.8.RELEASE</version>
+		<version>1.1.9.RELEASE</version>
 		<relativePath>../../../project/parent</relativePath>
 	</parent>
 	<groupId>com.jd.binaryproto</groupId>
 	<artifactId>binary-proto</artifactId>
-	<version>1.6.6.RELEASE</version>
+	<version>1.6.7.RELEASE</version>
 
 	<properties>
-		<utils.version>2.2.3.RELEASE</utils.version>
+		<utils.version>2.2.4.RELEASE</utils.version>
 	</properties>
 
 	<dependencies>
